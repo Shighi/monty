@@ -2,21 +2,30 @@
 
 /**
  * opcode_sub - Subtracts the top element from the second top element.
- * @stack: Double pointer to the stack.
- * @line_number: Line number of the bytecode file.
+ * @stack: Double pointer to the stack (head).
+ * @line_number: Line number of the bytecode file (counter).
  */
 void opcode_sub(stack_t **stack, unsigned int line_number)
 {
 	stack_t *temp;
+	int diff, nodes;
 
-	if (!*stack || !(*stack)->next)
+	temp = *stack;
+	for (nodes = 0; temp != NULL; nodes++)
+		temp = temp->next;
+
+	if (nodes < 2)
 	{
-		fprintf(stderr, "L%u: can't sub, stack too short\n", line_number);
+		fprintf(stderr, "L%d: can't sub, stack too short\n", line_number);
+		fclose(bus.file);
+		free(bus.content);
+		free_stack(*stack);
 		exit(EXIT_FAILURE);
 	}
 
 	temp = *stack;
-	(*stack)->next->n -= temp->n;
-	*stack = (*stack)->next;
+	diff = temp->next->n - temp->n;
+	temp->next->n = diff;
+	*stack = temp->next;
 	free(temp);
 }
